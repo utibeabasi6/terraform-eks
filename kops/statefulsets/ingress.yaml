@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-ingress
+  namespace: default
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: a47b1e759a3c44899b585d01d1b4a37f-2118498345.us-east-2.elb.amazonaws.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: app
+                port:
+                  number: 8081
+            path: /
+            pathType: Prefix
+  

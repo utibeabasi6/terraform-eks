@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: database
+spec:
+  selector:
+    matchLabels:
+      app: db
+  serviceName: db-service
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      containers:
+      - name: db
+        image: mongo
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 27017
+          name: web
+        volumeMounts:
+        - name: db-data
+          mountPath: /data/db
+
+        env:
+          - name: MONGO_INITDB_ROOT_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: mongo-pass-6kbggkm6gk
+                key: MONGO_INITDB_ROOT_USERNAME
+          - name: MONGO_INITDB_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mongo-pass-6kbggkm6gk
+                key: password
+  volumeClaimTemplates:
+  - metadata:
+      name: db-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-service
+spec:
+  selector:
+    app: db
+  ports:
+  - port: 27017
+    targetPort: 27017
